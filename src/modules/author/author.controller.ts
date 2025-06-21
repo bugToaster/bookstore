@@ -9,6 +9,7 @@ import {
   HttpCode,
   NotFoundException,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
@@ -24,21 +25,33 @@ export class AuthorController {
   }
 
   @Get()
-  findAll() {
-    return this.authorService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('firstName') firstName?: string,
+    @Query('lastName') lastName?: string,
+  ) {
+    return this.authorService.findAll({
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      firstName,
+      lastName,
+    });
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const author = await this.authorService.findOne(id);
-    if (!author) throw new NotFoundException('Author not found');
+    if (!author) {
+      throw new NotFoundException('Author not found');
+    }
     return author;
   }
 
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDto: UpdateAuthorDto
+    @Body() updateDto: UpdateAuthorDto,
   ) {
     return this.authorService.update(id, updateDto);
   }

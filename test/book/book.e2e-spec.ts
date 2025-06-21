@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
+
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
@@ -25,6 +26,7 @@ describe('Books E2E', () => {
     );
     await app.init();
 
+    // Create an author for book association
     const res = await request(app.getHttpServer())
       .post('/authors')
       .send({
@@ -33,6 +35,7 @@ describe('Books E2E', () => {
         bio: 'Author of Brave New World',
         birthDate: '1994-05-18',
       });
+
     authorId = res.body.id;
   });
 
@@ -54,6 +57,22 @@ describe('Books E2E', () => {
 
     bookId = res.body.id;
     expect(res.body.title).toBe('Life of Pi');
+    expect(res.body.author.id).toBe(authorId);
+  });
+
+  it('GET /books - should return paginated list with filter', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/books?page=1&limit=5&title=life&authorId=${authorId}`)
+      .expect(200);
+
+    expect(res.body.data).toBeInstanceOf(Array);
+    expect(res.body.total).toBeGreaterThanOrEqual(1);
+    expect(res.body.page).toBe(1);
+    expect(res.body.limit).toBe(5);
+
+    const found = res.body.data.find((b) => b.id === bookId);
+    expect(found).toBeDefined();
+    expect(found.author.id).toBe(authorId);
   });
 
   it('GET /books/:id - should get the book', async () => {

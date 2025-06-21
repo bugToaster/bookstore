@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Author } from './entities/author.entity';
@@ -17,12 +21,46 @@ export class AuthorService {
     return await this.authorRepo.save(author);
   }
 
-  async findAll(): Promise<Author[]> {
-    return await this.authorRepo.find({ relations: ['books'] });
+  async findAll(query: {
+    page: number;
+    limit: number;
+    firstName?: string;
+    lastName?: string;
+  }) {
+    const { page, limit, firstName, lastName } = query;
+
+    const qb = this.authorRepo.createQueryBuilder('author');
+
+    if (firstName) {
+      qb.andWhere('LOWER(author.firstName) LIKE LOWER(:firstName)', {
+        firstName: `%${firstName}%`,
+      });
+    }
+
+    if (lastName) {
+      qb.andWhere('LOWER(author.lastName) LIKE LOWER(:lastName)', {
+        lastName: `%${lastName}%`,
+      });
+    }
+
+    qb.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      pageCount: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Author> {
-    const author = await this.authorRepo.findOne({ where: { id }, relations: ['books'] });
+    const author = await this.authorRepo.findOne({
+      where: { id },
+      relations: ['books'],
+    });
     if (!author) {
       throw new NotFoundException(`Author with ID ${id} not found`);
     }
@@ -43,11 +81,13 @@ export class AuthorService {
     if (!author) {
       throw new NotFoundException(`Author with ID ${id} not found`);
     }
-    if (author.books && author.books.length > 0) {
+
+    if (author.books?.length) {
       throw new BadRequestException(
         `Cannot delete author with ${author.books.length} associated book(s).`,
       );
     }
+
     await this.authorRepo.remove(author);
   }
 }

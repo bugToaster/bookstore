@@ -9,6 +9,7 @@ import {
   HttpCode,
   NotFoundException,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -24,8 +25,20 @@ export class BookController {
   }
 
   @Get()
-  async findAll() {
-    return this.bookService.findAll();
+  async findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('title') title?: string,
+    @Query('isbn') isbn?: string,
+    @Query('authorId') authorId?: string,
+  ) {
+    return this.bookService.findAll({
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      title,
+      isbn,
+      authorId: authorId ? authorId : undefined,
+    });
   }
 
   @Get(':id')
@@ -38,7 +51,7 @@ export class BookController {
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateDto: UpdateBookDto
+    @Body() updateDto: UpdateBookDto,
   ) {
     return this.bookService.update(id, updateDto);
   }

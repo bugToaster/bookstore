@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
+
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as request from 'supertest';
@@ -42,6 +43,21 @@ describe('Authors E2E', () => {
 
     createdAuthorId = res.body.id;
     expect(res.body.firstName).toBe('Anjan');
+    expect(res.body.lastName).toBe('Das');
+  });
+
+  it('GET /authors - should return paginated list with the created author', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/authors?page=1&limit=5&firstName=anj')
+      .expect(200);
+
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.page).toBe(1);
+    expect(res.body.limit).toBe(5);
+    expect(res.body.total).toBeGreaterThanOrEqual(1);
+
+    const found = res.body.data.find((a) => a.id === createdAuthorId);
+    expect(found).toBeDefined();
   });
 
   it('GET /authors/:id - should get the author', async () => {
