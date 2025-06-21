@@ -27,7 +27,7 @@ pnpm install
 
 ```bash
 cp .env.example .env
-cp .env.example .env.test
+cp .env.test.example .env.test
 ```
 
 Fill in your DB credentials in both files.
