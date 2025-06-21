@@ -78,16 +78,17 @@ export class AuthorService {
       where: { id },
       relations: ['books'],
     });
+
     if (!author) {
       throw new NotFoundException(`Author with ID ${id} not found`);
     }
 
-    if (author.books?.length) {
+    if (author.books && author.books.length > 0) {
       throw new BadRequestException(
         `Cannot delete author with ${author.books.length} associated book(s).`,
       );
     }
-
     await this.authorRepo.remove(author);
   }
+
 }

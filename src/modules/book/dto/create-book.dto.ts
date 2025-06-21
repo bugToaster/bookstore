@@ -2,11 +2,12 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsDateString,
+  IsDate,
   Matches,
   IsUUID,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreateBookDto {
   @ApiProperty({
@@ -34,8 +35,9 @@ export class CreateBookDto {
     format: 'date',
   })
   @IsOptional()
-  @IsDateString()
-  publishedDate?: string;
+  @Transform(({ value }) => value ? new Date(value) : undefined)
+  @IsDate()
+  publishedDate?: Date;
 
   @ApiPropertyOptional({
     example: 'Novel',
