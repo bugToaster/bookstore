@@ -47,16 +47,18 @@ Fill in your DB credentials in both files.
 
 ```
 src/
-  ├── modules/
-  │   ├── author/
-  │   └── book/
+  ├── app.module.ts
   ├── database/
-  └── app.module.ts
+  └── modules/
+      ├── author/
+      └── book/
 
 test/
-  ├── author.e2e-spec.ts
-  ├── book.e2e-spec.ts
-  └── app.e2e-spec.ts
+  ├── app.e2e-spec.ts
+  ├── author/
+  │   └── author.e2e-spec.ts
+  └── book/
+      └── book.e2e-spec.ts
 ```
 
 ---
