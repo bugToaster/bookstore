@@ -18,8 +18,8 @@ A minimal RESTful API for managing authors and books using **NestJS**, **TypeORM
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-user/bookstore-rest-api.git
-cd bookstore-rest-api
+git clone https://github.com/your-user/bookstore.git
+cd bookstore
 pnpm install
 ```
 
