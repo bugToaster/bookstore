@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Author } from '../modules/author/entities/author.entity';
 import { Book } from '../modules/book/entities/book.entity';
@@ -11,7 +12,12 @@ const commonConfig = {
 
 
 export function getTypeOrmConfig(): TypeOrmModuleOptions {
-    console.log('DB Loaded:', process.env.DB_NAME);
+  
+  console.log('DB Loaded:', process.env.DB_NAME);
+
+  if (!process.env.DB_NAME) {
+    throw new Error('DB_NAME is missing! Did you load .env.test?');
+  } 
 
   switch (process.env.DB_TYPE) {
     case 'mysql':
