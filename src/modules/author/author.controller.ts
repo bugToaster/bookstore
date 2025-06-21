@@ -14,17 +14,33 @@ import {
 import { AuthorService } from './author.service';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiParam,
+} from '@nestjs/swagger';
 
+@ApiTags('Authors')
 @Controller('authors')
 export class AuthorController {
   constructor(private readonly authorService: AuthorService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new author' })
+  @ApiResponse({ status: 201, description: 'Author created successfully' })
   create(@Body() dto: CreateAuthorDto) {
     return this.authorService.create(dto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get a list of authors with optional search & pagination' })
+  @ApiQuery({ name: 'page', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, example: 10 })
+  @ApiQuery({ name: 'firstName', required: false, example: 'John' })
+  @ApiQuery({ name: 'lastName', required: false, example: 'Doe' })
+  @ApiResponse({ status: 200, description: 'List of authors' })
   async findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -40,6 +56,10 @@ export class AuthorController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single author by ID' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({ status: 200, description: 'Author found' })
+  @ApiResponse({ status: 404, description: 'Author not found' })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const author = await this.authorService.findOne(id);
     if (!author) {
@@ -49,6 +69,9 @@ export class AuthorController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update an author by ID' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({ status: 200, description: 'Author updated successfully' })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateAuthorDto,
@@ -58,6 +81,9 @@ export class AuthorController {
 
   @Delete(':id')
   @HttpCode(204)
+  @ApiOperation({ summary: 'Delete an author by ID' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({ status: 204, description: 'Author deleted successfully' })
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     await this.authorService.remove(id);
   }
