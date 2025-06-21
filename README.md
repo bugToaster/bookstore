@@ -39,10 +39,7 @@ Fill in your DB credentials in both files.
 | Command                   | Description                      |
 |--------------------------|----------------------------------|
 | `pnpm start:dev`         | Run in development mode          |
-| `pnpm test`              | Run all unit tests               |
 | `pnpm test:e2e`          | Run end-to-end tests             |
-| `pnpm migration:generate`| Generate TypeORM migration       |
-| `pnpm migration:run`     | Run pending migrations           |
 
 ---
 
